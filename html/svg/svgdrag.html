@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>viewBox/拖拽/resize</title>
+    <style>
+        html,body{
+            margin:0;
+            padding:0;
+            height:100%;
+            overflow: hidden;
+        }
+        #content{
+            position: relative;
+            /*width:500px;*/
+            /*height:500px;*/
+        }
+    </style>
+</head>
+<body>
+    <svg id="content"  preserveAspectRatio="xMinYMin slice"></svg>
+    <script src="SVG.js"></script>
+</body>
+<script>
+        var svg = new SVG('content');
+        var wheelName = (document.mozFullScreen !== undefined) ? 'DOMMouseScroll':'mousewheel';
+        svg.init();
+        svg.createEle({'tagName':'path',type:'line','attrs':{'d':{'M':{x:100,y:-30},'L':{x:-100,y:30}}},'styles':{'stroke':'rgb(0,0,0)'},'name':'pathLine'});
+
+        function mouseDownEve(e){
+            svg.clickFlag = true;
+            svg.downPosition['x'] = e.pageX;
+            svg.downPosition['y'] = e.pageY;
+        }
+        function mouseMoveEve(e){
+            if(svg.clickFlag){
+                var distanceX = e.pageX - svg.downPosition['x'],
+                    distanceY = e.pageY - svg.downPosition['y'];
+                svg.viewBoxX = -(svg.position['x'] + distanceX)*svg.viewBoxRate;
+                svg.viewBoxY = -(svg.position['y'] + distanceY)*svg.viewBoxRate;
+                svg.resetViewBox();
+            }
+        }
+        function mouseUpEve(e){
+            if(svg.clickFlag){
+                svg.position['x'] += (e.pageX - svg.downPosition['x']);
+                svg.position['y'] += (e.pageY - svg.downPosition['y']);
+                svg.clickFlag = false;
+            }
+        }
+//        function resize(){
+//            svg.init();
+//            svg.resetChildren();
+//        }
+        function mouseWheel(e){
+            e.delta = (e.wheelDelta) ? e.wheelDelta / 120 : -(e.detail || 0) / 3;
+            e.delta >0? (svg.scale += 0.1):(svg.scale -= 0.1);
+            svg.zoom();
+        }
+
+        document.addEventListener('mousedown',mouseDownEve,false);
+        document.addEventListener('mousemove',mouseMoveEve,false);
+        document.addEventListener('mouseup',mouseUpEve,false);
+//        window.addEventListener('resize',resize,false);
+        document.addEventListener(wheelName,mouseWheel,false);
+
+
+
+    </script>
+
+</html>
