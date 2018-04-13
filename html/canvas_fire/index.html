@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>canvas 烟花</title>
+    <style>
+        html,body{
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        var canvas = document.getElementById('canvas'),
+            ctx = canvas.getContext('2d'),
+            pageWidth = window.innerWidth,
+            pageHeight = window.innerHeight,
+            fires = [],
+            pos = {
+                x:pageWidth/2,
+                y:pageHeight/2
+            };
+
+        canvas.width = pageWidth;
+        canvas.height = pageHeight;
+
+        function Fire(){
+            this.px = pos['x'];
+            this.py = pos['y'];
+            this.vx = Math.random()*10 - 5;
+            this.vy = Math.random()*6 - 3;
+            this.r = 0.03;
+            this.color = '#' + (Math.random()*0xffffff|0).toString(16);
+            fires.push(this);
+        }
+
+        Fire.prototype.draw = function(){
+            ctx.beginPath();
+            ctx.arc(this.px,this.py,this.r,0,2*Math.PI,false);
+            ctx.closePath();
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        };
+
+        Fire.prototype.gliding = function(){
+            this.px += this.vx;
+            this.py += this.vy;
+            this.r += 0.03;
+        };
+
+
+        function render(){
+            fires.forEach(function(item,i){
+                item.draw();
+                item.gliding();
+                if(item.r > 5){
+                    fires.splice(i,1);
+                }
+            });
+
+        }
+
+        var animate = function(){
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.fillRect(0,0,pageWidth,pageHeight);
+            new Fire();
+            render();
+            requestAnimationFrame(animate)
+        };
+
+        animate()
+
+
+    </script>
+</body>
+</html>
